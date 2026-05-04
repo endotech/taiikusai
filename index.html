@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>体育祭 色決め集会</title>
+  <style>
+    :root {
+      --red: #ff304f;
+      --blue: #1e7bff;
+      --dark: #121629;
+      --gold: #ffd166;
+      --white: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Yu Gothic", "Meiryo", system-ui, sans-serif;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255, 48, 79, 0.45), transparent 28%),
+        radial-gradient(circle at 80% 25%, rgba(30, 123, 255, 0.45), transparent 30%),
+        linear-gradient(135deg, #111827 0%, #1f2937 45%, #0f172a 100%);
+      overflow-x: hidden;
+    }
+
+    .confetti {
+      pointer-events: none;
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      z-index: 20;
+    }
+
+    .confetti span {
+      position: absolute;
+      top: -20px;
+      width: 12px;
+      height: 18px;
+      opacity: 0.95;
+      animation: fall 2.8s linear forwards;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-30px) rotate(0deg); }
+      100% { transform: translateY(110vh) rotate(720deg); }
+    }
+
+    header {
+      text-align: center;
+      padding: 14px 12px 8px;
+    }
+
+    .title {
+      margin: 0;
+      font-size: clamp(26px, 4.8vw, 52px);
+      letter-spacing: 0.08em;
+      text-shadow: 0 0 18px rgba(255,255,255,.35), 0 8px 28px rgba(0,0,0,.45);
+    }
+
+    
+
+    .stage-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      flex-wrap: wrap;
+      padding: 6px 12px 12px;
+    }
+
+    .tab {
+      border: 2px solid rgba(255,255,255,.35);
+      background: rgba(255,255,255,.12);
+      color: white;
+      padding: 8px 18px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 15px;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: .2s;
+    }
+
+    .tab:hover, .tab.active {
+      background: var(--gold);
+      color: #171717;
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 8px 24px rgba(255, 209, 102, .35);
+    }
+
+    main {
+      width: min(1120px, 96vw);
+      margin: 0 auto 18px;
+    }
+
+    .panel {
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 28px;
+      padding: clamp(12px, 2.2vw, 22px);
+      box-shadow: 0 24px 80px rgba(0,0,0,.35);
+      backdrop-filter: blur(12px);
+    }
+
+    .class-pick-area {
+      margin-bottom: 4px;
+      padding: 6px;
+      border-radius: 20px;
+      background: rgba(0,0,0,.18);
+      border: 1px solid rgba(255,255,255,.18);
+    }
+
+    .class-pick-title {
+      font-weight: 900;
+      font-size: 14px;
+      margin-bottom: 4px;
+      color: var(--gold);
+    }
+
+    .class-buttons {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .class-button {
+      border: 2px solid rgba(255,255,255,.28);
+      background: rgba(255,255,255,.14);
+      color: white;
+      padding: 6px 10px;
+      border-radius: 16px;
+      cursor: pointer;
+      font-weight: 900;
+      font-size: 15px;
+      transition: .2s;
+      min-width: 85px;
+    }
+
+    .class-button:hover:not(:disabled) {
+      transform: translateY(-2px) scale(1.03);
+      background: rgba(255,255,255,.26);
+    }
+
+    .class-button.next {
+      background: linear-gradient(180deg, #fff7c2, var(--gold));
+      color: #111;
+      border-color: #fff7c2;
+      box-shadow: 0 8px 24px rgba(255, 209, 102, .35);
+    }
+
+    .class-button.done-red {
+      background: linear-gradient(135deg, rgba(255,48,79,.92), rgba(138,0,24,.82));
+      opacity: .65;
+      cursor: not-allowed;
+    }
+
+    .class-button.done-blue {
+      background: linear-gradient(135deg, rgba(30,123,255,.92), rgba(0,45,120,.82));
+      opacity: .65;
+      cursor: not-allowed;
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    .grade-name {
+      font-size: clamp(16px, 2vw, 22px);
+      font-weight: 900;
+    }
+
+    .remaining {
+      font-size: 15px;
+      padding: 5px 9px;
+      border-radius: 14px;
+      background: rgba(0,0,0,.24);
+    }
+
+    .draw-area {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+      align-items: center;
+    }
+
+    @media (max-width: 820px) {
+      .draw-area { grid-template-columns: 1fr; }
+    }
+
+    .lottery-box {
+      min-height: 180px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      border-radius: 28px;
+      background: linear-gradient(145deg, rgba(255,255,255,.18), rgba(255,255,255,.06));
+      border: 2px dashed rgba(255,255,255,.35);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .lottery-box::before {
+      content: "";
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: conic-gradient(var(--red), var(--blue), var(--red));
+      filter: blur(30px);
+      opacity: .25;
+      animation: spin 5s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .next-class {
+      position: relative;
+      z-index: 2;
+      font-size: clamp(22px, 3.8vw, 40px);
+      font-weight: 1000;
+      text-shadow: 0 5px 18px rgba(0,0,0,.45);
+      margin-bottom: 10px;
+    }
+
+    .draw-button {
+      position: relative;
+      z-index: 2;
+      border: none;
+      cursor: pointer;
+      color: #151515;
+      background: linear-gradient(180deg, #fff7c2, var(--gold));
+      font-size: clamp(22px, 3vw, 34px);
+      font-weight: 1000;
+      padding: 10px 24px;
+      border-radius: 999px;
+      box-shadow: 0 12px 0 #b88400, 0 22px 35px rgba(0,0,0,.36);
+      transition: .12s;
+    }
+
+    .draw-button:hover { transform: translateY(-3px) scale(1.03); }
+    .draw-button:active {
+      transform: translateY(8px);
+      box-shadow: 0 4px 0 #b88400, 0 12px 22px rgba(0,0,0,.36);
+    }
+    .draw-button:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .result-card {
+      min-height: 180px;
+      border-radius: 28px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 24px;
+      background: rgba(0,0,0,.24);
+      border: 1px solid rgba(255,255,255,.22);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .result-card.flash-red {
+      background: radial-gradient(circle, rgba(255,255,255,.95), var(--red) 32%, #820017 100%);
+      animation: boom .85s ease-out;
+    }
+
+    .result-card.flash-blue {
+      background: radial-gradient(circle, rgba(255,255,255,.95), var(--blue) 32%, #003382 100%);
+      animation: boom .85s ease-out;
+    }
+
+    @keyframes boom {
+      0% { transform: scale(.75) rotate(-2deg); filter: brightness(3); }
+      60% { transform: scale(1.08) rotate(1deg); }
+      100% { transform: scale(1) rotate(0); filter: brightness(1); }
+    }
+
+    .result-text {
+      position: relative;
+      z-index: 2;
+      font-size: clamp(24px, 4vw, 46px);
+      line-height: 1.2;
+      font-weight: 1000;
+      text-shadow: 0 8px 22px rgba(0,0,0,.5);
+      white-space: pre-line;
+    }
+
+    .rolling { animation: shake .08s infinite; }
+
+    @keyframes shake {
+      0% { transform: translate(2px, 1px) rotate(.5deg); }
+      50% { transform: translate(-2px, -1px) rotate(-.5deg); }
+      100% { transform: translate(1px, 2px) rotate(.3deg); }
+    }
+
+    .class-list {
+      margin-top: 8px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 5px;
+    }
+
+    .class-item {
+      border-radius: 18px;
+      padding: 6px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.22);
+      font-size: 14px;
+      font-weight: 900;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 34px;
+    }
+
+    .class-item.red {
+      background: linear-gradient(135deg, rgba(255,48,79,.92), rgba(138,0,24,.82));
+    }
+
+    .class-item.blue {
+      background: linear-gradient(135deg, rgba(30,123,255,.92), rgba(0,45,120,.82));
+    }
+
+    .badge {
+      font-size: 14px;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.2);
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+
+    .small-button {
+      border: 1px solid rgba(255,255,255,.3);
+      background: rgba(255,255,255,.12);
+      color: white;
+      padding: 5px 9px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .small-button:hover { background: rgba(255,255,255,.24); }
+
+    .final-message {
+      text-align: center;
+      margin-top: 20px;
+      font-size: clamp(14px, 2vw, 20px);
+      font-weight: 900;
+      color: var(--gold);
+      min-height: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="confetti" id="confetti"></div>
+
+  <header>
+    <h1 class="title" id="mainTitle">体育祭 色決めくじ</h1>
+    
+  </header>
+
+  <div class="stage-tabs" id="tabs"></div>
+
+  <main>
+    <section class="panel">
+      <div class="class-pick-area">
+        
+        <div class="class-buttons" id="classButtons"></div>
+      </div>
+
+      <div class="status-row">
+        <div class="grade-name" id="gradeName">1年生</div>
+        <div class="remaining" id="remaining">残り：赤2・青2</div>
+      </div>
+
+      <div class="draw-area">
+        <div class="lottery-box">
+          <div class="next-class" id="nextClass">1年1組</div>
+          <button class="draw-button" id="drawButton">くじを引く！</button>
+        </div>
+
+        <div class="result-card" id="resultCard">
+          <div class="result-text" id="resultText">結果発表を待っています</div>
+        </div>
+      </div>
+
+      <div class="class-list" id="classList"></div>
+
+      <div class="final-message" id="finalMessage"></div>
+
+      <div class="controls">
+        <button class="small-button" onclick="resetCurrentGrade()">この学年をリセット</button>
+        <button class="small-button" onclick="resetAll()">全学年リセット</button>
+        <button class="small-button" onclick="toggleSecondGradeBalance()">2年の赤青数を切替</button>
+        <button class="small-button" onclick="toggleAllResults()">全体結果を表示</button>
+      </div>
+    <div id="allResultsPanel" style="display:none; margin-top:14px; padding:14px; border-radius:24px; background:rgba(0,0,0,.28); border:1px solid rgba(255,255,255,.22);">
+        <div style="font-size:clamp(22px,3vw,34px); font-weight:1000; color:var(--gold); text-align:center; margin-bottom:10px;">全体結果</div>
+        <div id="allResultsContent"></div>
+      </div>
+    <div id="teacherPanel" style="display:none;"></div>
+    </section>
+  </main>
+
+  <script>
+    const grades = {
+      1: {
+        label: "1年生",
+        classes: ["1年1組", "1年2組", "1年3組", "1年4組"],
+        colors: ["赤", "赤", "青", "青"],
+        results: []
+      },
+      2: {
+        label: "2年生",
+        classes: ["2年1組", "2年2組", "2年3組"],
+        colors: ["赤", "青", "青"],
+        results: []
+      },
+      3: {
+        label: "3年生",
+        classes: ["3年1組", "3年2組", "3年3組", "3年4組"],
+        colors: ["赤", "赤", "青", "青"],
+        results: []
+      }
+    };
+
+    let currentGrade = 1;
+    let isDrawing = false;
+
+    const tabs = document.getElementById("tabs");
+    const gradeName = document.getElementById("gradeName");
+    const remaining = document.getElementById("remaining");
+    const nextClass = document.getElementById("nextClass");
+    const drawButton = document.getElementById("drawButton");
+    const resultCard = document.getElementById("resultCard");
+    const resultText = document.getElementById("resultText");
+    const classList = document.getElementById("classList");
+    const finalMessage = document.getElementById("finalMessage");
+    const confetti = document.getElementById("confetti");
+    const classButtons = document.getElementById("classButtons");
+    const allResultsPanel = document.getElementById("allResultsPanel");
+    const allResultsContent = document.getElementById("allResultsContent");
+    const teacherPanel = document.getElementById("teacherPanel");
+    const mainTitle = document.getElementById("mainTitle");
+    let titleClickCount = 0;
+    let titleClickTimer = null;
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function setupGrade(gradeNumber) {
+      const grade = grades[gradeNumber];
+      grade.pool = shuffle(grade.colors);
+      grade.results = [];
+      if (gradeNumber === 3 && !grade.fixedColorMap) {
+        grade.fixedColorMap = null;
+      }
+    }
+
+    Object.keys(grades).forEach(setupGrade);
+
+    function renderTabs() {
+      tabs.innerHTML = "";
+      Object.keys(grades).forEach(num => {
+        const button = document.createElement("button");
+        button.className = "tab" + (Number(num) === currentGrade ? " active" : "");
+        button.textContent = grades[num].label;
+        button.onclick = () => {
+          if (isDrawing) return;
+          currentGrade = Number(num);
+          resultCard.className = "result-card";
+          resultText.textContent = "結果発表を待っています";
+          render();
+        };
+        tabs.appendChild(button);
+      });
+    }
+
+    function countRemaining(grade) {
+      const red = grade.pool.filter(c => c === "赤").length;
+      const blue = grade.pool.filter(c => c === "青").length;
+      return { red, blue };
+    }
+
+    function setNextClass(index) {
+      if (isDrawing) return;
+      const grade = grades[currentGrade];
+      const currentIndex = grade.results.length;
+
+      if (index <= currentIndex) return;
+
+      [grade.classes[currentIndex], grade.classes[index]] = [grade.classes[index], grade.classes[currentIndex]];
+      render();
+      if (allResultsPanel.style.display !== "none") renderAllResults();
+    }
+
+    function renderClassButtons() {
+      const grade = grades[currentGrade];
+      const currentIndex = grade.results.length;
+      classButtons.innerHTML = "";
+
+      grade.classes.forEach((className, index) => {
+        const button = document.createElement("button");
+        const result = grade.results[index];
+        button.className = "class-button";
+        button.textContent = className;
+
+        if (result === "赤") {
+          button.classList.add("done-red");
+          button.textContent = `${className}：赤`;
+          button.disabled = true;
+        } else if (result === "青") {
+          button.classList.add("done-blue");
+          button.textContent = `${className}：青`;
+          button.disabled = true;
+        } else if (index === currentIndex) {
+          button.classList.add("next");
+          button.textContent = `${className} ← 次`;
+        }
+
+        button.onclick = () => setNextClass(index);
+        classButtons.appendChild(button);
+      });
+    }
+
+    function render() {
+      const grade = grades[currentGrade];
+      const index = grade.results.length;
+      const remain = countRemaining(grade);
+
+      renderTabs();
+      renderClassButtons();
+      gradeName.textContent = grade.label;
+      remaining.textContent = `残り：赤${remain.red}・青${remain.blue}`;
+      nextClass.textContent = grade.classes[index] || "決定完了！";
+      drawButton.disabled = index >= grade.classes.length || isDrawing;
+      drawButton.textContent = index >= grade.classes.length ? "決定完了" : "くじを引く！";
+
+      classList.innerHTML = "";
+      grade.classes.forEach((className, i) => {
+        const color = grade.results[i];
+        const item = document.createElement("div");
+        item.className = "class-item" + (color === "赤" ? " red" : color === "青" ? " blue" : "");
+        item.innerHTML = `<span>${className}</span><span class="badge">${color || "未定"}</span>`;
+        classList.appendChild(item);
+      });
+
+      finalMessage.textContent = index >= grade.classes.length ? `${grade.label}の色がすべて決定しました！` : "";
+    }
+
+    function createConfetti(color) {
+      confetti.innerHTML = "";
+      const colors = color === "赤"
+        ? ["#ff304f", "#ffd166", "#ffffff", "#ff7a90"]
+        : ["#1e7bff", "#7dd3fc", "#ffffff", "#ffd166"];
+
+      for (let i = 0; i < 120; i++) {
+        const piece = document.createElement("span");
+        piece.style.left = Math.random() * 100 + "vw";
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.animationDelay = Math.random() * 0.8 + "s";
+        piece.style.transform = `rotate(${Math.random() * 360}deg)`;
+        confetti.appendChild(piece);
+      }
+
+      setTimeout(() => confetti.innerHTML = "", 3800);
+    }
+
+    function drawColor() {
+      if (isDrawing) return;
+      const grade = grades[currentGrade];
+      const index = grade.results.length;
+      if (index >= grade.classes.length) return;
+
+      isDrawing = true;
+      drawButton.disabled = true;
+      resultCard.className = "result-card";
+      resultText.classList.add("rolling");
+
+      const roll = setInterval(() => {
+        resultText.textContent = Math.random() > 0.5 ? "赤！？" : "青！？";
+      }, 90);
+
+      setTimeout(() => {
+        clearInterval(roll);
+        const className = grade.classes[index];
+        let color;
+
+        if (currentGrade === 3 && grade.fixedColorMap && grade.fixedColorMap[className]) {
+          color = grade.fixedColorMap[className];
+          const colorIndex = grade.pool.indexOf(color);
+          if (colorIndex !== -1) grade.pool.splice(colorIndex, 1);
+        } else {
+          color = grade.pool.shift();
+        }
+        grade.results.push(color);
+
+        resultText.classList.remove("rolling");
+        resultText.textContent = `${className}\n${color}組！`;
+        resultCard.className = "result-card " + (color === "赤" ? "flash-red" : "flash-blue");
+        createConfetti(color);
+
+        isDrawing = false;
+        render();
+      }, 2200);
+    }
+
+    function openTeacherPanel() {
+      const password = prompt("教員用パスワードを入力してください");
+      if (password === "taiikusai") {
+        applyThirdGradePairMode();
+        render();
+      } else if (password !== null) {
+        alert("パスワードが違います");
+      }
+    }
+
+    function closeTeacherPanel() {
+      teacherPanel.style.display = "none";
+    }
+
+    function renderAllResults() {
+      allResultsContent.innerHTML = "";
+
+      Object.keys(grades).forEach(num => {
+        const grade = grades[num];
+        const box = document.createElement("div");
+        box.style.marginBottom = "22px";
+
+        const title = document.createElement("div");
+        title.textContent = grade.label;
+        title.style.fontSize = "26px";
+        title.style.fontWeight = "1000";
+        title.style.margin = "8px 0 12px";
+        box.appendChild(title);
+
+        const grid = document.createElement("div");
+        grid.style.display = "grid";
+        grid.style.gridTemplateColumns = "repeat(auto-fit, minmax(170px, 1fr))";
+        grid.style.gap = "12px";
+
+        grade.classes.forEach((className, index) => {
+          const color = grade.results[index];
+          const card = document.createElement("div");
+          card.style.padding = "18px";
+          card.style.borderRadius = "18px";
+          card.style.fontWeight = "1000";
+          card.style.fontSize = "22px";
+          card.style.textAlign = "center";
+          card.style.border = "1px solid rgba(255,255,255,.22)";
+
+          if (color === "赤") {
+            card.style.background = "linear-gradient(135deg, rgba(255,48,79,.95), rgba(138,0,24,.85))";
+            card.textContent = `${className}：赤`;
+          } else if (color === "青") {
+            card.style.background = "linear-gradient(135deg, rgba(30,123,255,.95), rgba(0,45,120,.85))";
+            card.textContent = `${className}：青`;
+          } else {
+            card.style.background = "rgba(255,255,255,.12)";
+            card.textContent = `${className}：未定`;
+          }
+
+          grid.appendChild(card);
+        });
+
+        box.appendChild(grid);
+        allResultsContent.appendChild(box);
+      });
+    }
+
+    function toggleAllResults() {
+      const isHidden = allResultsPanel.style.display === "none";
+      allResultsPanel.style.display = isHidden ? "block" : "none";
+      if (isHidden) renderAllResults();
+    }
+
+    function resetCurrentGrade() {
+      if (isDrawing) return;
+      if (currentGrade === 3) grades[3].fixedColorMap = null;
+      setupGrade(currentGrade);
+      resultCard.className = "result-card";
+      resultText.textContent = "結果発表を待っています";
+      render();
+      if (allResultsPanel.style.display !== "none") renderAllResults();
+    }
+
+    function resetAll() {
+      if (isDrawing) return;
+      grades[3].fixedColorMap = null;
+      Object.keys(grades).forEach(setupGrade);
+      resultCard.className = "result-card";
+      resultText.textContent = "結果発表を待っています";
+      render();
+      if (allResultsPanel.style.display !== "none") renderAllResults();
+    }
+
+    function applyThirdGradePairMode() {
+      if (isDrawing) return;
+
+      const grade = grades[3];
+      const firstColor = Math.random() > 0.5 ? "赤" : "青";
+      const secondColor = firstColor === "赤" ? "青" : "赤";
+
+      grade.fixedColorMap = {
+        "3年1組": firstColor,
+        "3年2組": firstColor,
+        "3年3組": secondColor,
+        "3年4組": secondColor
+      };
+
+      grade.pool = [firstColor, firstColor, secondColor, secondColor];
+      grade.results = [];
+      grade.classes = ["3年1組", "3年2組", "3年3組", "3年4組"];
+
+      currentGrade = 3;
+      resultCard.className = "result-card";
+      resultText.textContent = "結果発表を待っています";
+      render();
+    }
+
+    function toggleSecondGradeBalance() {
+      if (isDrawing) return;
+      const grade = grades[2];
+      const redCount = grade.colors.filter(c => c === "赤").length;
+      grade.colors = redCount === 1 ? ["赤", "赤", "青"] : ["赤", "青", "青"];
+      setupGrade(2);
+      if (currentGrade === 2) {
+        resultCard.className = "result-card";
+        resultText.textContent = "2年の赤青数を切り替えました";
+      }
+      render();
+      if (allResultsPanel.style.display !== "none") renderAllResults();
+    }
+
+    drawButton.addEventListener("click", drawColor);
+
+    mainTitle.addEventListener("click", () => {
+      titleClickCount++;
+      clearTimeout(titleClickTimer);
+      titleClickTimer = setTimeout(() => {
+        titleClickCount = 0;
+      }, 1200);
+
+      if (titleClickCount >= 3) {
+        titleClickCount = 0;
+        openTeacherPanel();
+      }
+    });
+
+    render();
+  </script>
+</body>
+</html>
